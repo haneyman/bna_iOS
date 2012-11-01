@@ -19,14 +19,50 @@ var timeout;//holds setTimeout
 var alarmFileURL = "assets/audio/alarmBig.mp3";
 var alarmAudio;//for audio instance
 //
-var isDebug = false;  /// can also use the script at the bottom of index.html to send console to build.phonegap.com
+var isDebug = true;  /// can also use the script at the bottom of index.html to send console to build.phonegap.com
 var debugLevel = 1;//0-detailed, 1-less detailed, 2-summary level
 var stopTimesFilenameURL = "gtfs/stop_times.txt";
 var stationsURL = "gtfs/stops.txt";
 //var stopTimesFilenameURL = "gtfs/stop_times_test.txt";
 //
+var app = {
+    // Application Constructor
+    initialize: function() {
+        this.bindEvents();
+    },
+    // Bind Event Listeners
+    //
+    // Bind any events that are required on startup. Common events are:
+    // `load`, `deviceready`, `offline`, and `online`.
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+    // deviceready Event Handler
+    //
+    // The scope of `this` is the event. In order to call the `receivedEvent`
+    // function, we must explicity call `app.receivedEvent(...);`
+    onDeviceReady: function() {
+        app.receivedEvent('deviceready');
+        initializeApp();
+    },
+    // Update DOM on a Received Event
+    receivedEvent: function(id) {
+        //var parentElement = document.getElementById(id);
+        //var listeningElement = parentElement.querySelector('.listening');
+        //var receivedElement = parentElement.querySelector('.received');
+    
+        //listeningElement.setAttribute('style', 'display:none;');
+        //receivedElement.setAttribute('style', 'display:block;');
+        console.log('blah 2');
+        console.log('Received Event: ' + id);
+    }
+};
 
-function initialize() {
+
+
+
+function initializeApp() {
+    console.log("in initialize");
     loadStations();
     loadStopTimes();
     $("#select-depart option:selected").val("");
@@ -39,13 +75,35 @@ function initialize() {
     else
         $('#buttonDebug').hide();
     log("Initialized.  Debug is " + isDebug + "  with level of " + debugLevel, 2 );
+    
+    
+    var d = new Date();
+    d = d.getTime() + 6*1000; //60 seconds from now
+    d = new Date(d);
+    
+    console.log('localNotifications.add calling, date is ' + d.toString());
+    window.plugins.localNotification.add({
+                                         date: d, // your set date object
+                                         message: 'Hello world!',
+                                         repeat: 'weekly', // will fire every week on this day
+                                         badge: 1,
+                                         foreground:'foreground',
+                                         background:'background',
+                                         sound:'sub.caf'
+                                         });
+    
+    console.log('localNotifications.add called.');
+    function foreground(id){
+        console.log("I WAS RUNNING ID="+id);
+    }
+    function background(id){
+        console.log("I WAS IN THE BACKGROUND ID="+id)
+    }
+    
+    
+    
 }
 
-document.addEventListener("deviceready", onDeviceReady, false);
-
-function onDeviceReady() {
-
-}
 
 function newTrip() {
     alarmOff();
@@ -107,7 +165,7 @@ function log(msg, level) {
             //if ($('#log').is(':visible') )
                 $('#log').append("<br/>" + getCurrentTime() + " - " + msg);
             //else
-                if( (window['console'] !== undefined) )
+//                if( (window['console'] !== undefined) )
                     console.log(getCurrentTime() + " - " + msg);
         }
     }
